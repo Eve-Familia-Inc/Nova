@@ -1,18 +1,13 @@
 import asyncio
 
-from Lilith.Core.Stream import AsyncStream
+from Nova.Core.Stream import AsyncStream
 
 
 class AsyncTcp():
-    async def __new__(cls, *a, **kw):
-        instance = super().__new__(cls)
-        await instance.__init__(*a, **kw)
-        return instance
-
-    async def __init__(self, host, port, ssl_context):
+    def __init__(self, host, port):
         self._Host = host
         self._Port = port
-        self._SSL_Context = ssl_context
+        self._SSL_Context = None
 
     # Need Override
     async def Handler():
@@ -28,7 +23,7 @@ class AsyncTcp():
         connection = await AsyncStream(reader, writer)
         await self.Handler(connection)
 
-    async def Start(self):
+    async def __Start__(self):
         if(self._SSL_Context is None):
             server = await asyncio.start_server(self.__InitHandler__, self._Host, self._Port)
             async with server:

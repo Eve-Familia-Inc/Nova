@@ -22,19 +22,20 @@ status_codes = {
 }
 
 mime = {
-    b"txt": b"text/plain",
-    b"html": b"text/html",
-    b"css": b"text/css",
-    b"js": b"application/javascript",
-    b"jpg": b"image/jpg",
-    b"jpeg": b"image/jpeg",
-    b"png": b"image/png",
-    b"gif": b"image/gif",
-    b"ico": b"image/ico",
-    b"mp4": b"video/mp4",
-    b"mp3": b"audio/mp3",
-    b"otf": b"application/x-font-otf",
-    b"woff": b"application/x-font-woff",
-    b"ttf": b"application/x-font-ttf",
-    b"svg": b"image/svg+xml"
+    "txt": b"text/plain",
+    "html": b"text/html",
+    "css": b"text/css",
+    "js": b"application/javascript",
+    "jpg": b"image/jpg",
+    "jpeg": b"image/jpeg",
+    "png": b"image/png",
+    "gif": b"image/gif",
+    "ico": b"image/ico",
+    "mp4": b"video/mp4",
+    "mp3": b"audio/mp3",
+    "otf": b"application/x-font-otf",
+    "woff": b"application/x-font-woff",
+    "ttf": b"application/x-font-ttf",
+    "svg": b"image/svg+xml",
+    "json": b"application/json"
 }
