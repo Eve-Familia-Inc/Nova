@@ -16,8 +16,7 @@ setuptools.setup(
     project_urls={
         'Documentation': 'https://nova.eve.ninja/',
         'Homepage': 'https://nova.eve.ninja/',
-        'Source': 'https://github.com/Eve-Familia-Inc/Nova',
-        'Eve.Familia, Inc.': 'https://www.eve.familia.inc/',
+        'Source': 'https://github.com/Eve-Familia-Inc/Nova'
     },
     packages=setuptools.find_packages("Nova"),
     classifiers=[

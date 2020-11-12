@@ -9,8 +9,6 @@ from Nova.Server.Defines import status_codes
 class Server(AsyncTcp):
     def __init__(self, host, port):
         super().__init__(host=host, port=port)
-        self.RootDirectory = b"./"
-        self.MessageDirectory = b"./"
         self.DefaultFile = b"/index.html"
         self.PostFunctions = {}
         self.GetFunctions = {}
@@ -130,7 +128,7 @@ class Server(AsyncTcp):
     async def Get(self, connection, Request, ReplyHeader):
         ReqPath = Request["path"].decode("utf-8")
         if(ReqPath == "/"):
-            ReqPath = "/index.html"
+            ReqPath = self.DefaultFile
         if(ReqPath in self.OnMemoryFiles):
             ReplyHeader["ReplyContent"] = self.OnMemoryFiles[ReqPath]["DATA"]
             ReplyHeader["Content-Type"] = self.OnMemoryFiles[ReqPath]["MIME"]
