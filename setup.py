@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="Nova-EveFamilia",
-    version="0.0.1",
+    version="0.0.2.a",
     author="Eve.Familia, Inc.",
     author_email="eve@eve.ninja",
     description="WebApplication Framework",
@@ -18,7 +18,11 @@ setuptools.setup(
         'Homepage': 'https://nova.eve.ninja/',
         'Source': 'https://github.com/Eve-Familia-Inc/Nova'
     },
-    packages=setuptools.find_packages("Nova"),
+    packages=[
+        "Nova",
+        "Nova.Core",
+        "Nova.Server"
+    ],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Web Environment",
