@@ -9,7 +9,7 @@ from Nova.Server.Defines import status_codes
 class Server(AsyncTcp):
     def __init__(self, host, port):
         super().__init__(host=host, port=port)
-        self.DefaultFile = b"/index.html"
+        self.DefaultFile = "/index.html"
         self.PostFunctions = {}
         self.GetFunctions = {}
         self.WebSocketFunctions = {}
