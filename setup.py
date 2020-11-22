@@ -1,16 +1,12 @@
 import setuptools
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
-
-
 setuptools.setup(
     name="Nova-EveFamilia",
-    version="0.1.2",
+    version="0.1.10",
     author="Eve.Familia, Inc.",
     author_email="eve@eve.ninja",
     description="WebApplication Framework",
-    long_description=long_description,
+    long_description=open('README.md').read(),
     long_description_content_type="text/markdown",
     url="https://github.com/Eve-Familia-Inc/Nova",
     project_urls={

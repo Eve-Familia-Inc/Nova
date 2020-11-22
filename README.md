@@ -7,4 +7,4 @@ Novaは、よくある普通のWebアプリケーションのためにPython3.9�
 今ではすっかりスタンダードとなった非同期処理(Async)を基本とし、Html, CSS, 画像などの静的コンテンツをオンメモリ化。　 
 WebSocketも気軽に利用できて、分かりやすく自由度の高いコードが書けます。 マッピングのために妙なデコレーターを利用することはせず、サーバー部分で最後にメソッドを寄せ集めます。 特に何も考えなくても機能単位でコードの分割がしやすく、チームでの開発もスムーズに進むでしょう。  
   
-<a href="https://nova.eve.ninja"><img src="https://nova.eve.ninja/img/wallpaper.png"></a>
+[![](https://nova.eve.ninja/img/wallpaper.png)](https://nova.eve.ninja){:target="_blank"}

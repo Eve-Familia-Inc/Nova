@@ -1,5 +1,4 @@
 from Nova.Core.ServerBase import AsyncTcp
-import asyncio
 import hashlib
 import base64
 
