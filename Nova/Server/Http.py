@@ -34,7 +34,7 @@ class Server(AsyncTcp):
     def NewHeader(self):
         return({
             "Status": 0,
-            "Server": b"Nova/1.0",
+            "Server": b"Nova",
             "Accept-Ranges": b"bytes",
             "Content-Length": 0,
             "Connection": b"keep-alive",
