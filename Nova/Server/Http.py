@@ -106,6 +106,12 @@ class Server(AsyncTcp):
         R += payload
         return(R)
 
+    async def ServerFunctionHandler(self, connection, Request, ReplyHeader):
+        try:
+            await self.ServerFunctions[Request["method"]](connection, Request, ReplyHeader)
+        except:
+            await self.ReplyJustCode(501, connection, Request, ReplyHeader)
+
     async def GetFunctionHandler(self, connection, Request, ReplyHeader):
         try:
             await self.GetFunctions[Request["path"].decode("utf-8")](self, connection, Request, ReplyHeader)
@@ -204,6 +210,6 @@ class Server(AsyncTcp):
                 else:
                     await connection.Close()
                     return
-                await self.ServerFunctions[Request["method"]](connection, Request, h)
+                await self.ServerFunctionHandler(connection, Request, h)
         except:
             await connection.Close()
