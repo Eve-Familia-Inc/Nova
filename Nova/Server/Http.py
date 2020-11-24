@@ -65,6 +65,9 @@ class Server(AsyncTcp):
         ReplyHeader["Status"] = code
         await self.Reply(connection, ReplyHeader)
 
+    async def Redirect(self, connection, to):
+        await connection.Send(b"HTTP/1.1 301 Moved Permanently\r\nLocation: %b" % to)
+
     async def WebSockRecv(self, connection):
         buf = await connection.Recv()
         if(len(buf) == 0 or buf[0] == 0x88):
