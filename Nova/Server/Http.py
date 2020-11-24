@@ -135,7 +135,7 @@ class Server(AsyncTcp):
         if(ReqPath == "/"):
             ReqPath = self.DefaultFile
         elif(ReqPath[:2] == "/?"):
-            ReqPath = self.DefaultFile + ReqPath
+            ReqPath = self.DefaultFile + ReqPath[1:]
         if(ReqPath in self.OnMemoryFiles):
             ReplyHeader["ReplyContent"] = self.OnMemoryFiles[ReqPath]["DATA"]
             ReplyHeader["Content-Type"] = self.OnMemoryFiles[ReqPath]["MIME"]
