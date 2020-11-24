@@ -131,11 +131,12 @@ class Server(AsyncTcp):
             await connection.Close()
 
     async def Get(self, connection, Request, ReplyHeader):
+        if(Request["path"] == b"/"):
+            Request["path"] = self.DefaultFile.encode("utf-8")
+        elif(Request["path"][:2] == b"/?"):
+            Request["path"] = self.DefaultFile.encode(
+                "utf-8") + Request["path"][1:]
         ReqPath = Request["path"].decode("utf-8")
-        if(ReqPath == "/"):
-            ReqPath = self.DefaultFile
-        elif(ReqPath[:2] == "/?"):
-            ReqPath = self.DefaultFile + ReqPath[1:]
         if(ReqPath in self.OnMemoryFiles):
             ReplyHeader["ReplyContent"] = self.OnMemoryFiles[ReqPath]["DATA"]
             ReplyHeader["Content-Type"] = self.OnMemoryFiles[ReqPath]["MIME"]
