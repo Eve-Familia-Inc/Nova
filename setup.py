@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="Nova-EveFamilia",
-    version="0.2.9",
+    version="0.3.0",
     author="Eve.Familia, Inc.",
     author_email="eve@eve.ninja",
     description="WebApplication Framework",
@@ -29,5 +29,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
         "Topic :: Internet :: WWW/HTTP :: HTTP Servers"
     ],
+    install_requires=["brotli"],
     python_requires='>=3.7'
 )
