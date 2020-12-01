@@ -1,6 +1,7 @@
 from Nova.Core.ServerBase import AsyncTcp
 import hashlib
 import base64
+import brotli
 
 from Nova.Server.Defines import status_codes
 
@@ -44,6 +45,12 @@ class Server(AsyncTcp):
             "ReplyContent": b""
         })
 
+    async def ReplyCompressBrotli(self, connection, header):
+        header["Additional"].append(b"Content-Encoding: br")
+        tmp_compress = brotli.compress(header["ReplyContent"])
+        header["ReplyContent"] = tmp_compress
+        await self.Reply(connection, header)
+
     async def Reply(self, connection, header):
         _ReplyBuffer = self._Header % (
             self.StatusCodes[header["Status"]],
@@ -56,7 +63,6 @@ class Server(AsyncTcp):
 
         for a in header["Additional"]:
             _ReplyBuffer += a + b"\r\n"
-
         await connection.Send(_ReplyBuffer + b"\r\n" + header["ReplyContent"])
 
     async def ReplyJustCode(self, code, connection, Request, ReplyHeader):
@@ -179,9 +185,9 @@ class Server(AsyncTcp):
 
     async def Handler(self, connection):
         try:
-            h = self.NewHeader()
-            Request = {}
             while(connection.OnLine):
+                h = self.NewHeader()
+                Request = {}
                 buf = await connection.Recv()
                 if(len(buf) == 0):
                     await connection.Close()
