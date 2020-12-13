@@ -185,7 +185,7 @@ class Server(AsyncTcp):
 
     async def Handler(self, connection):
         try:
-            while(connection.OnLine):
+            while(not connection._Writer.is_closing()):
                 h = self.NewHeader()
                 Request = {}
                 buf = await connection.Recv()

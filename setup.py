@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="Nova-EveFamilia",
-    version="0.3.0",
+    version="0.3.4",
     author="Eve.Familia, Inc.",
     author_email="eve@eve.ninja",
     description="WebApplication Framework",
