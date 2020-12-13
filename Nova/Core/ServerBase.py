@@ -15,12 +15,12 @@ class AsyncTcp():
 
     async def __InitHandler__(self, reader, writer):
         # Connection MUST be argment
-        connection = await AsyncStream(reader, writer, ssl_context=self._SSL_Context)
+        connection = AsyncStream(reader, writer, ssl_context=self._SSL_Context)
         await self.Handler(connection)
 
     async def __InitHandlerSSL__(self, reader, writer):
         # Connection MUST be argment
-        connection = await AsyncStream(reader, writer)
+        connection = AsyncStream(reader, writer)
         await self.Handler(connection)
 
     async def __Start__(self):

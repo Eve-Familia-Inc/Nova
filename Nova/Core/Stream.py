@@ -9,12 +9,7 @@ TLS_READ_SIZE = 8
 
 
 class AsyncStream():
-    async def __new__(cls, *a, **kw):
-        instance = super().__new__(cls)
-        await instance.__init__(*a, **kw)
-        return instance
-
-    async def __init__(self, reader, writer, ssl_context=None, debug=False, server_side=True):
+    def __init__(self, reader, writer, ssl_context=None, debug=True, server_side=True):
         self.OnLine = True
         self._Reader = reader
         self._Writer = writer
