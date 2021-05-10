@@ -135,7 +135,7 @@ class Server(AsyncTcp):
 
     async def WebSocketFunctionHandler(self, connection, Request, ReplyHeader):
         try:
-            await self.WebSocketFunctions[Request["path"]](self, connection, Request, ReplyHeader)
+            await self.WebSocketFunctions[Request["path"].decode("utf-8")](self, connection, Request, ReplyHeader)
         except:
             await connection.Close()
 
@@ -181,7 +181,7 @@ class Server(AsyncTcp):
             + base64.b64encode(m.digest())
             + b"\r\n\r\n"
         )
-        await self.WebSocketFunctionHandler[Request["path"]](connection, Request, ReplyHeader)
+        await self.WebSocketFunctionHandler(connection, Request, ReplyHeader)
 
     async def Handler(self, connection):
         try:
