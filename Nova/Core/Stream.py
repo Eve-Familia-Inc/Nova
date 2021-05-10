@@ -14,6 +14,7 @@ class AsyncStream():
         self._Recvsize = RECV_SIZE
         self._Timeout = DEFAULT_TIMEOUT
         self._Debug = debug
+        self.PeerInfo = writer.get_extra_info("peername")
         if(self._Debug):
             print("AsyncStream:__init__")
             print(
