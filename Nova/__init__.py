@@ -29,7 +29,7 @@ class Service(Server):
     8         `Y8o.`  ` 8888     ,88'        `8.`8' .888888888. `88888.  
     8            `Yo     `8888888P'           `8.` .8'       `8. `88888. 
 
-                                                        © Eve.Familia, Inc. 2020""")
+                                                        © Eve.Familia, Inc. 2021""")
 
     def SetFilesOnMemory(self, path):
         path = (path + "/**").replace("//", "/")
