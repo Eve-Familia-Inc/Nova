@@ -2,11 +2,11 @@ import setuptools
 
 setuptools.setup(
     name="Nova-EveFamilia",
-    version="0.3.4",
+    version="0.4.0",
     author="Eve.Familia, Inc.",
     author_email="eve@eve.ninja",
     description="WebApplication Framework",
-    long_description=open('README.md').read(),
+    long_description=open('README.md', encoding='utf-8').read(),
     long_description_content_type="text/markdown",
     url="https://github.com/Eve-Familia-Inc/Nova",
     project_urls={

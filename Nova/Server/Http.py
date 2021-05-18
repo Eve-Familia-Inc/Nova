@@ -2,6 +2,7 @@ from Nova.Core.ServerBase import AsyncTcp
 import hashlib
 import base64
 import brotli
+import json
 
 from Nova.Server.Defines import status_codes
 
@@ -73,6 +74,10 @@ class Server(AsyncTcp):
 
     async def Redirect(self, connection, to):
         await connection.Send(b"HTTP/1.1 301 Moved Permanently\r\nLocation: %b\r\n\r\n\r\n" % to)
+
+    async def SetJson(self, d):
+        ReplyHeader["Content-Type"] = b"application/json"
+        header["ReplyContent"] = json.dumps(d).encode("utf-8")
 
     async def WebSockRecv(self, connection):
         buf = await connection.Recv()
@@ -209,9 +214,7 @@ class Server(AsyncTcp):
                     pass
                 if("Upgrade" in Request and Request["Upgrade"] == b"websocket"):
                     Request["method"] = b"WebSocket"
-                elif(Request["method"] == b"GET"):
-                    pass
-                elif(Request["method"] == b"POST"):
+                elif("Content-Length" in Request):
                     body = buf[body_pointer+4:]
                     if(self.ContentLengthLimit < int(Request["Content-Length"])):
                         await connection.Close()
@@ -219,9 +222,6 @@ class Server(AsyncTcp):
                     while(len(body) < int(Request["Content-Length"])):
                         body += await connection.Recv()
                     Request.update({"content": body})
-                else:
-                    await connection.Close()
-                    return
                 await self.ServerFunctionHandler(connection, Request, h)
         except:
             await connection.Close()
