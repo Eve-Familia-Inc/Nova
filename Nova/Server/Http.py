@@ -75,9 +75,8 @@ class Server(AsyncTcp):
     async def Redirect(self, connection, to):
         await connection.Send(b"HTTP/1.1 301 Moved Permanently\r\nLocation: %b\r\n\r\n\r\n" % to)
 
-    async def SetJson(self, d):
-        ReplyHeader["Content-Type"] = b"application/json"
-        header["ReplyContent"] = json.dumps(d).encode("utf-8")
+    async def DEJson(self, d):
+        return json.dumps(d).encode("utf-8")
 
     async def WebSockRecv(self, connection):
         buf = await connection.Recv()
