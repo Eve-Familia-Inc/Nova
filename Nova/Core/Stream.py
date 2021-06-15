@@ -8,7 +8,7 @@ RECV_SIZE = 1024 * 4
 
 
 class AsyncStream():
-    def __init__(self, reader, writer, debug=False, server_side=True):
+    def __init__(self, reader, writer, debug=False):
         self._Reader = reader
         self._Writer = writer
         self._Recvsize = RECV_SIZE
