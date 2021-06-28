@@ -39,6 +39,7 @@ class Service(Server):
         tmp = [a.replace(root_dir, '/') for a in l]
         for p in tmp:
             if("." in p):
+                p = p.replace("\\", "/")
                 extension = p.split(".")[-1]
                 if(extension in self.MIME):
                     f = open(root_dir + p[1:], "rb")
@@ -48,7 +49,7 @@ class Service(Server):
                         "MIME": self.MIME[extension],
                         "DATA": data
                     }
-                    print("Stored File:", root_dir + p[1:])
+                    print("Stored File:", p)
 
     def EnableSSL(self, domain_cert, private_key):
         ctx = ssl.SSLContext(ssl.PROTOCOL_TLS)
