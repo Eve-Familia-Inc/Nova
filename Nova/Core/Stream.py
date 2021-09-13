@@ -81,3 +81,6 @@ class AsyncStream():
 
     async def _normal_close(self):
         self._Writer.close()
+
+    def isOnline(self):
+        return(not self._Writer.is_closing())
