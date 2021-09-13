@@ -5,13 +5,28 @@ from Nova.Core.Stream import AsyncStream
 class Gate():
     def __init__(self,
                  entrance_ip, entrance_port, entrance_ssl_context,
-                 destination_ip, destination_port, destination_ssl_context):
+                 destinations):
+        """
+        Parameters
+        ----------
+        entrance_ip : str
+            proxy ip
+        entrance_port : int
+            proxy port
+        entrance_ssl_context : sslContext | None
+            proxy SSL context
+        destinations : array [
+                entrance_ip,
+                entrance_port,
+                entrance_ssl_context
+                ]
+            proxy destinations list
+        """
         self.EntranceIp = entrance_ip
         self.EntrancePort = entrance_port
         self.EntranceSslContext = entrance_ssl_context
-        self.DestinationIp = destination_ip
-        self.DestinationPort = destination_port
-        self.DestinationSslContext = destination_ssl_context
+        self.Destinations = destinations
+        self.DestinationsWeight = [0 for x in destinations]
         self.__print_msg__()
 
     async def onEntranceToDestination(self, buf, entrance_connection, destination_connection):
@@ -20,7 +35,7 @@ class Gate():
     async def onDestinationToEntrance(self, buf, destination_connection, entrance_connection):
         return buf
 
-    async def __openGate__(self, entrance_connection, destination_connection):
+    async def __openGate__(self, entrance_connection, destination_connection, destination_index):
         await asyncio.gather(
             self.__entranceHandler__(
                 entrance_connection, destination_connection),
@@ -48,6 +63,7 @@ class Gate():
                 buf = await destination_connection.Recv()
                 event_handling_result_buf = await self.onDestinationToEntrance(buf, destination_connection, entrance_connection)
                 if(buf == b""):
+                    await entrance_connection.Close()
                     await destination_connection.Close()
                     break
                 await entrance_connection.Send(event_handling_result_buf)
@@ -56,14 +72,24 @@ class Gate():
             await destination_connection.Close()
 
     async def __proxyHandler__(self, entrance_connection):
+        destination_connection, destination_index = await self.__openDestination__()
         await self.__openGate__(
             entrance_connection,
-            await self.__openDistination__()
+            destination_connection,
+            destination_index
         )
+        self.DestinationsWeight[destination_index] -= 1
 
-    async def __openDistination__(self):
-        reader, writer = await asyncio.open_connection(self.DestinationIp, self.DestinationPort, ssl=self.DestinationSslContext)
-        return AsyncStream(reader, writer)
+    async def __openDestination__(self):
+        minimum_index = self.DestinationsWeight.index(
+            min(self.DestinationsWeight))
+        reader, writer = await asyncio.open_connection(
+            self.Destinations[minimum_index][0],
+            self.Destinations[minimum_index][1],
+            ssl=self.Destinations[minimum_index][2])
+        self.DestinationsWeight[minimum_index] += 1
+
+        return AsyncStream(reader, writer), minimum_index
 
     async def __proxyInitHandler__(self, reader, writer):
         # Connection MUST be argment
