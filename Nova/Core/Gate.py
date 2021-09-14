@@ -13,7 +13,7 @@ class Gate():
             "EntrancePort": port num,
             "GateMapping": {
                 mapping hostname, this is used for SNI callback. key of "EntranceSslContext": {
-                    "EntranceSslContext": ssl.SSLContext of mapping hostname,
+                    "EntranceSslContext": ssl.SSLContext of mapping hostname this cant be None object(must TLS),
                     "Destinations": [ this parameter is array because Gate has load balancing
                         {
                             "DestinationHost": ip address or domain name ,
@@ -113,11 +113,18 @@ class Gate():
         minimum_index = self.DestinationsWeight[destination_name].index(
             min(self.DestinationsWeight[destination_name]))
         destination = self.GateMapping[destination_name]["Destinations"][minimum_index]
-        reader, writer = await asyncio.open_connection(
-            destination["DestinationHost"],
-            destination["DestinationPort"],
-            ssl=destination["DestinationSslContext"],
-            server_hostname=destination_name)
+        reader = None
+        writer = None
+        if(destination["DestinationSslContext"] is None):
+            reader, writer = await asyncio.open_connection(
+                destination["DestinationHost"],
+                destination["DestinationPort"])
+        else:
+            reader, writer = await asyncio.open_connection(
+                destination["DestinationHost"],
+                destination["DestinationPort"],
+                ssl=destination["DestinationSslContext"],
+                server_hostname=destination_name)
         self.DestinationsWeight[destination_name][minimum_index] += 1
 
         return AsyncStream(reader, writer), minimum_index
@@ -142,15 +149,15 @@ class Gate():
 
     def __print_msg__(self):
         print("""
-        ,o888888o.          .8.    8888888 8888888888 8 8888888888   
-       8888     `88.       .888.         8 8888       8 8888         
-    ,8 8888       `8.     :88888.        8 8888       8 8888         
-    88 8888              . `88888.       8 8888       8 8888         
-    88 8888             .8. `88888.      8 8888       8 888888888888 
-    88 8888            .8`8. `88888.     8 8888       8 8888         
-    88 8888   8888888 .8' `8. `88888.    8 8888       8 8888         
-    `8 8888       .8'.8'   `8. `88888.   8 8888       8 8888         
-       8888     ,88'.888888888. `88888.  8 8888       8 8888         
-        `8888888P' .8'       `8. `88888. 8 8888       8 888888888888 
+        ,o888888o.          .8.    8888888 8888888888 8 8888888888
+       8888     `88.       .888.         8 8888       8 8888
+    ,8 8888       `8.     :88888.        8 8888       8 8888
+    88 8888              . `88888.       8 8888       8 8888
+    88 8888             .8. `88888.      8 8888       8 888888888888
+    88 8888            .8`8. `88888.     8 8888       8 8888
+    88 8888   8888888 .8' `8. `88888.    8 8888       8 8888
+    `8 8888       .8'.8'   `8. `88888.   8 8888       8 8888
+       8888     ,88'.888888888. `88888.  8 8888       8 8888
+        `8888888P' .8'       `8. `88888. 8 8888       8 888888888888
 
                                                             © Eve.Familia, Inc. / LobeliaTechnologies™ 2021""")
