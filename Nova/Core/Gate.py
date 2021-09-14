@@ -79,7 +79,8 @@ class Gate():
                     await entrance_connection.Close()
                     await destination_connection.Close()
                     break
-                await destination_connection.Send(event_handling_result_buf)
+                if(event_handling_result_buf is not None):
+                    await destination_connection.Send(event_handling_result_buf)
         except:
             await entrance_connection.Close()
             await destination_connection.Close()
@@ -93,7 +94,8 @@ class Gate():
                     await entrance_connection.Close()
                     await destination_connection.Close()
                     break
-                await entrance_connection.Send(event_handling_result_buf)
+                if(event_handling_result_buf is not None):
+                    await entrance_connection.Send(event_handling_result_buf)
         except:
             await entrance_connection.Close()
             await destination_connection.Close()
