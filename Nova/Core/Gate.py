@@ -18,7 +18,9 @@ class Gate():
                         {
                             "DestinationHost": ip address or domain name ,
                             "DestinationPort": port num,
-                            "DestinationSslContext": ssl.SSLContext using for Destination or if non TLS, just set None object
+                            "DestinationSslContext": ssl.SSLContext using for Destination or if non TLS, just set None object,
+                            "FakeDestinationHost": FakeDestinationHost, transport other place. if None, just set None
+
                         }
                     ]
                 }
@@ -122,11 +124,18 @@ class Gate():
                 destination["DestinationHost"],
                 destination["DestinationPort"])
         else:
-            reader, writer = await asyncio.open_connection(
-                destination["DestinationHost"],
-                destination["DestinationPort"],
-                ssl=destination["DestinationSslContext"],
-                server_hostname=destination_name)
+            if(destination["FakeDestinationHost"] is None):
+                reader, writer = await asyncio.open_connection(
+                    destination["DestinationHost"],
+                    destination["DestinationPort"],
+                    ssl=destination["DestinationSslContext"],
+                    server_hostname=destination_name)
+            else:
+                reader, writer = await asyncio.open_connection(
+                    destination["FakeDestinationHost"],
+                    destination["DestinationPort"],
+                    ssl=destination["DestinationSslContext"],
+                    server_hostname=destination["FakeDestinationHost"])
         self.DestinationsWeight[destination_name][minimum_index] += 1
 
         return AsyncStream(reader, writer), minimum_index
