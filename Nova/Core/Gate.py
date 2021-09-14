@@ -1,41 +1,68 @@
 import asyncio
+import ssl
 from Nova.Core.Stream import AsyncStream
 
 
 class Gate():
-    def __init__(self,
-                 entrance_ip, entrance_port, entrance_ssl_context,
-                 destinations):
+    def __init__(self, gate_setting_tree):
         """
         Parameters
         ----------
-        entrance_ip : str
-            proxy ip
-        entrance_port : int
-            proxy port
-        entrance_ssl_context : sslContext | None
-            proxy SSL context
-        destinations : array [
-                entrance_ip,
-                entrance_port,
-                entrance_ssl_context
-                ]
-            proxy destinations list
+        {
+            "EntranceHost": ip address or domain name,
+            "EntrancePort": port num,
+            "GateMapping": {
+                mapping hostname, this is used for SNI callback. key of "EntranceSslContext": {
+                    "EntranceSslContext": ssl.SSLContext of mapping hostname,
+                    "Destinations": [ this parameter is array because Gate has load balancing
+                        {
+                            "DestinationHost": ip address or domain name ,
+                            "DestinationPort": port num,
+                            "DestinationSslContext": ssl.SSLContext using for Destination or if non TLS, just set None object
+                        }
+                    ]
+                }
+            }
+        }
         """
-        self.EntranceIp = entrance_ip
-        self.EntrancePort = entrance_port
-        self.EntranceSslContext = entrance_ssl_context
-        self.Destinations = destinations
-        self.DestinationsWeight = [0 for x in destinations]
+        self.GateSettingTree = gate_setting_tree
+        self.EntranceHost = self.GateSettingTree["EntranceHost"]
+        self.EntrancePort = self.GateSettingTree["EntrancePort"]
+        self.GateMapping = self.GateSettingTree["GateMapping"]
+        self.DestinationsWeight = {}
+        for gate_map in self.GateMapping:
+            """
+                self.DestinationsWeight = {
+                    GateMapping, mapping hostname: [0, ... Destinations[n]]
+                }
+            """
+            self.DestinationsWeight[gate_map] = [
+                0 for x in self.GateMapping[gate_map]['Destinations']
+            ]
+            setattr(
+                self.GateMapping[gate_map]["EntranceSslContext"],
+                "DomainName",
+                gate_map
+            )
         self.__print_msg__()
 
-    async def onEntranceToDestination(self, buf, entrance_connection, destination_connection):
-        return buf
+    async def onEntranceToDestination(self, B, entrance_connection, destination_connection):
+        return B
 
-    async def onDestinationToEntrance(self, buf, destination_connection, entrance_connection):
-        return buf
+    async def onDestinationToEntrance(self, B, destination_connection, entrance_connection):
+        return B
 
-    async def __openGate__(self, entrance_connection, destination_connection, destination_index):
+    def __gateSniCallback__(self, ssl_sock, domain, ssl_ctx, as_callback=True):
+        try:
+            ssl_sock.context = self.GateMapping[domain]["EntranceSslContext"]
+        except:
+            raise ssl.ALERT_DESCRIPTION_HANDSHAKE_FAILURE
+        return None
+
+    async def __getDestinationName__(self, entrance_connection):
+        return entrance_connection._Writer.get_extra_info("ssl_object").context.DomainName
+
+    async def __openGate__(self, entrance_connection, destination_connection):
         await asyncio.gather(
             self.__entranceHandler__(
                 entrance_connection, destination_connection),
@@ -72,22 +99,26 @@ class Gate():
             await destination_connection.Close()
 
     async def __proxyHandler__(self, entrance_connection):
-        destination_connection, destination_index = await self.__openDestination__()
+        destination_name = await self.__getDestinationName__(entrance_connection)
+        destination_connection, destination_index = await self.__openDestination__(
+            destination_name
+        )
         await self.__openGate__(
             entrance_connection,
-            destination_connection,
-            destination_index
+            destination_connection
         )
-        self.DestinationsWeight[destination_index] -= 1
+        self.DestinationsWeight[destination_name][destination_index] -= 1
 
-    async def __openDestination__(self):
-        minimum_index = self.DestinationsWeight.index(
-            min(self.DestinationsWeight))
+    async def __openDestination__(self, destination_name):
+        minimum_index = self.DestinationsWeight[destination_name].index(
+            min(self.DestinationsWeight[destination_name]))
+        destination = self.GateMapping[destination_name]["Destinations"][minimum_index]
         reader, writer = await asyncio.open_connection(
-            self.Destinations[minimum_index][0],
-            self.Destinations[minimum_index][1],
-            ssl=self.Destinations[minimum_index][2])
-        self.DestinationsWeight[minimum_index] += 1
+            destination["DestinationHost"],
+            destination["DestinationPort"],
+            ssl=destination["DestinationSslContext"],
+            server_hostname=destination_name)
+        self.DestinationsWeight[destination_name][minimum_index] += 1
 
         return AsyncStream(reader, writer), minimum_index
 
@@ -97,7 +128,12 @@ class Gate():
         await self.__proxyHandler__(connection)
 
     async def __start__(self):
-        server = await asyncio.start_server(self.__proxyInitHandler__, self.EntranceIp, self.EntrancePort, ssl=self.EntranceSslContext)
+        entrance_ssl_context = ssl.create_default_context(
+            purpose=ssl.Purpose.CLIENT_AUTH
+        )
+        entrance_ssl_context.options |= ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1
+        entrance_ssl_context.sni_callback = self.__gateSniCallback__
+        server = await asyncio.start_server(self.__proxyInitHandler__, self.EntranceHost, self.EntrancePort, ssl=entrance_ssl_context)
         async with server:
             await server.serve_forever()
 
