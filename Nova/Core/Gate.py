@@ -20,6 +20,7 @@ class Gate():
                             "DestinationPort": port num,
                             "DestinationSslContext": ssl.SSLContext using for Destination or if non TLS, just set None object,
                             "FakeDestinationHost": FakeDestinationHost, transport other place. if None, just set None
+                            "FakeDestinationPort": FakeDestinationPort, transport other place. if None, just set None
 
                         }
                     ]
@@ -120,9 +121,14 @@ class Gate():
         reader = None
         writer = None
         if(destination["DestinationSslContext"] is None):
-            reader, writer = await asyncio.open_connection(
-                destination["DestinationHost"],
-                destination["DestinationPort"])
+            if(destination["FakeDestinationHost"] is None):
+                reader, writer = await asyncio.open_connection(
+                    destination["DestinationHost"],
+                    destination["DestinationPort"])
+            else:
+                reader, writer = await asyncio.open_connection(
+                    destination["FakeDestinationHost"],
+                    destination["FakeDestinationPort"])
         else:
             if(destination["FakeDestinationHost"] is None):
                 reader, writer = await asyncio.open_connection(
@@ -133,7 +139,7 @@ class Gate():
             else:
                 reader, writer = await asyncio.open_connection(
                     destination["FakeDestinationHost"],
-                    destination["DestinationPort"],
+                    destination["FakeDestinationPort"],
                     ssl=destination["DestinationSslContext"],
                     server_hostname=destination["FakeDestinationHost"])
         self.DestinationsWeight[destination_name][minimum_index] += 1
