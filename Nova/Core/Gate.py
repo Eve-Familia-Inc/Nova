@@ -16,12 +16,12 @@ class Gate():
                     "EntranceSslContext": ssl.SSLContext of mapping hostname this cant be None object(must TLS),
                     "Destinations": [ this parameter is array because Gate has load balancing
                         {
-                            "DestinationHost": ip address or domain name ,
-                            "DestinationPort": port num,
-                            "DestinationSslContext": ssl.SSLContext using for Destination or if non TLS, just set None object,
-                            "FakeDestinationHost": FakeDestinationHost, transport other place. if None, just set None
-                            "FakeDestinationPort": FakeDestinationPort, transport other place. if None, just set None
-
+                            "Host": ip address or domain name ,
+                            "Port": port num,
+                            "SSL": {
+                                "ServerName": for checking host name,
+                                "Context": ssl.SSLContext using for conect to Destination or if non TLS, just set None object,
+                            }
                         }
                     ]
                 }
@@ -47,6 +47,7 @@ class Gate():
                 "DomainName",
                 gate_map
             )
+
         self.__print_msg__()
 
     async def onEntranceToDestination(self, B, entrance_connection, destination_connection):
@@ -58,6 +59,7 @@ class Gate():
     def __gateSniCallback__(self, ssl_sock, domain, ssl_ctx, as_callback=True):
         try:
             ssl_sock.context = self.GateMapping[domain]["EntranceSslContext"]
+
         except:
             raise ssl.ALERT_DESCRIPTION_HANDSHAKE_FAILURE
         return None
@@ -108,6 +110,7 @@ class Gate():
         destination_connection, destination_index = await self.__openDestination__(
             destination_name
         )
+
         await self.__openGate__(
             entrance_connection,
             destination_connection
@@ -120,30 +123,17 @@ class Gate():
         destination = self.GateMapping[destination_name]["Destinations"][minimum_index]
         reader = None
         writer = None
-        if(destination["DestinationSslContext"] is None):
-            if(destination["FakeDestinationHost"] is None):
-                reader, writer = await asyncio.open_connection(
-                    destination["DestinationHost"],
-                    destination["DestinationPort"])
-            else:
-                reader, writer = await asyncio.open_connection(
-                    destination["FakeDestinationHost"],
-                    destination["FakeDestinationPort"])
+        if(destination["SSL"]["Context"] is None):
+            reader, writer = await asyncio.open_connection(
+                destination["Host"],
+                destination["Port"])
         else:
-            if(destination["FakeDestinationHost"] is None):
-                reader, writer = await asyncio.open_connection(
-                    destination["DestinationHost"],
-                    destination["DestinationPort"],
-                    ssl=destination["DestinationSslContext"],
-                    server_hostname=destination_name)
-            else:
-                reader, writer = await asyncio.open_connection(
-                    destination["FakeDestinationHost"],
-                    destination["FakeDestinationPort"],
-                    ssl=destination["DestinationSslContext"],
-                    server_hostname=destination["FakeDestinationHost"])
+            reader, writer = await asyncio.open_connection(
+                destination["Host"],
+                destination["Port"],
+                ssl=destination["SSL"]["Context"],
+                server_hostname=destination["SSL"]["ServerName"])
         self.DestinationsWeight[destination_name][minimum_index] += 1
-
         return AsyncStream(reader, writer), minimum_index
 
     async def __proxyInitHandler__(self, reader, writer):

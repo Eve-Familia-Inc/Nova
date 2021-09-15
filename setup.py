@@ -17,7 +17,8 @@ setuptools.setup(
     packages=[
         "Nova",
         "Nova.Core",
-        "Nova.Server"
+        "Nova.Server",
+        "Nova.Lib"
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
