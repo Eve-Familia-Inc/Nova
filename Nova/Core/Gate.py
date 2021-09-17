@@ -50,8 +50,6 @@ class Gate():
                 gate_map
             )
             self.EntranceSslContextTree[gate_map] = self.GateMapping[gate_map]["EntranceSslContext"]
-        print(self.GateSettingTree)
-        print(self.EntranceSslContextTree)
         self.__print_msg__()
 
     async def onEntranceToDestination(self, B, entrance_connection, destination_connection):
@@ -126,11 +124,9 @@ class Gate():
 
         destination_connection = None
         if(entrance_connection.isTryingHandshake):
-            print(destination)
             if(destination["SSL"] is not None):
                 # open ssl connection
                 destination_context = ssl.create_default_context()
-                print(entrance_connection.ALPN)
                 if(len(entrance_connection.ALPN) > 0):
                     destination_context.set_alpn_protocols(
                         entrance_connection.ALPN
