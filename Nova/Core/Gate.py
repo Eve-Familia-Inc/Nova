@@ -4,6 +4,113 @@ import traceback
 from Nova.Core.Stream import AsyncStream, AsyncManualSslStream
 
 
+class BraveGate():
+    def __init__(self, gate_setting_tree):
+        """
+        Parameters
+        this is non ssl mode
+        ----------
+        {
+            "EntranceHost": ip address or domain name,
+            "EntrancePort": port num,
+            "GateMapping": {
+                "Host": ip address or domain name ,
+                "Port": port num,
+            }
+        }
+        """
+        self.GateSettingTree = gate_setting_tree
+        self.EntranceHost = self.GateSettingTree["EntranceHost"]
+        self.EntrancePort = self.GateSettingTree["EntrancePort"]
+        self.GateMapping = self.GateSettingTree["GateMapping"]
+        print(self.GateSettingTree)
+        self.__print_msg__()
+
+    async def onEntranceToDestination(self, B, entrance_connection, destination_connection):
+        return B
+
+    async def onDestinationToEntrance(self, B, destination_connection, entrance_connection):
+        return B
+
+    async def __openGate__(self, entrance_connection, destination_connection):
+        await asyncio.gather(
+            self.__entranceHandler__(
+                entrance_connection, destination_connection),
+            self.__transportHandler__(
+                destination_connection, entrance_connection)
+        )
+
+    async def __entranceHandler__(self, entrance_connection, destination_connection):
+        try:
+            while(entrance_connection.isOnline()):
+                buf = await entrance_connection.Recv()
+                event_handling_result_buf = await self.onEntranceToDestination(buf, entrance_connection, destination_connection)
+                if(buf == b""):
+                    await entrance_connection.Close()
+                    await destination_connection.Close()
+                    break
+                if(event_handling_result_buf is not None):
+                    await destination_connection.Send(event_handling_result_buf)
+        except:
+            await entrance_connection.Close()
+            await destination_connection.Close()
+
+    async def __transportHandler__(self, destination_connection, entrance_connection):
+        try:
+            while(destination_connection.isOnline()):
+                buf = await destination_connection.Recv()
+                event_handling_result_buf = await self.onDestinationToEntrance(buf, destination_connection, entrance_connection)
+                if(buf == b""):
+                    await entrance_connection.Close()
+                    await destination_connection.Close()
+                    break
+                if(event_handling_result_buf is not None):
+                    await entrance_connection.Send(event_handling_result_buf)
+        except:
+            await entrance_connection.Close()
+            await destination_connection.Close()
+
+    async def __proxyHandler__(self, entrance_connection):
+        destination_connection = await self.__openDestination__()
+        await self.__openGate__(
+            entrance_connection,
+            destination_connection
+        )
+
+    async def __openDestination__(self):
+        reader, writer = await asyncio.open_connection(
+            self.GateMapping["Host"],
+            self.GateMapping["Port"])
+        return AsyncStream(reader, writer)
+
+    async def __proxyInitHandler__(self, reader, writer):
+        # Connection MUST be argment
+        connection = AsyncStream(reader, writer)
+        await self.__proxyHandler__(connection)
+
+    async def __start__(self):
+        server = await asyncio.start_server(self.__proxyInitHandler__, self.EntranceHost, self.EntrancePort)
+        async with server:
+            await server.serve_forever()
+
+    def start(self):
+        asyncio.run(self.__start__())
+
+    def __print_msg__(self):
+        print("""
+        ,o888888o.          .8.    8888888 8888888888 8 8888888888
+       8888     `88.       .888.         8 8888       8 8888
+    ,8 8888       `8.     :88888.        8 8888       8 8888
+    88 8888              . `88888.       8 8888       8 8888
+    88 8888             .8. `88888.      8 8888       8 888888888888
+    88 8888            .8`8. `88888.     8 8888       8 8888
+    88 8888   8888888 .8' `8. `88888.    8 8888       8 8888
+    `8 8888       .8'.8'   `8. `88888.   8 8888       8 8888
+       8888     ,88'.888888888. `88888.  8 8888       8 8888
+        `8888888P' .8'       `8. `88888. 8 8888       8 888888888888
+                                                            © Eve.Familia, Inc. / LobeliaTechnologies™ 2021""")
+
+
 class StableGate():
     def __init__(self, gate_setting_tree):
         """
@@ -48,7 +155,8 @@ class StableGate():
                 "DomainName",
                 gate_map
             )
-
+        print(self.GateSettingTree)
+        print(self.DestinationsWeight)
         self.__print_msg__()
 
     async def onEntranceToDestination(self, B, entrance_connection, destination_connection):
