@@ -1,0 +1,61 @@
+{
+    "Meta": {
+        "Description": "Nova v1.0 idea."
+    },
+    "Gate": {
+        "EntranceHost": ""
+    },
+    "ExternalServices": [
+        {}
+    ],
+    "NovaServices": [
+        {
+            "Host": "127.0.0.1",
+            "Port": "443",
+            "SSL": null,
+            "Endpoints": [
+                {
+                    "Path": "/api/v1/users",
+                    "GET": {
+                        "Function": "get_users",
+                        "ArgumentDefinition": {
+                            "@Header": {
+                                "Authentication": ""
+                            },
+                            "@Body": {
+                                "token": ""
+                            }
+                        }
+                    },
+                    "POST": {
+                        "Function": "create_user",
+                        "ArgumentDefinition": {}
+                    }
+                },
+                {
+                    "Path": "/api/v1/users/{id}",
+                    "GET": {
+                        "Function": "get_user_by_id",
+                        "ArgumentDefinition": {
+                            "{id}": ""
+                        }
+                    },
+                    "POST": {
+                        "Function": "edit_user",
+                        "ArgumentDefinition": {
+                            "{id}": "",
+                            "token": null
+                        }
+                    }
+                }
+            ],
+            "OnDiskFiles": {
+                "/var/www/main": "/**/",
+                "/var/www": "/error/**/"
+            },
+            "OnMemoryFiles": {
+                "/var/www/static": "/**/"
+            }
+        }
+    ]
+}
