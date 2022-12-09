@@ -1,9 +1,9 @@
-from nova.Core.ServerBase import AsyncTcp
+from Nova.Core.ServerBase import AsyncTcp
 import hashlib
 import base64
 import json
 
-from nova.Server.Defines import status_codes
+from Nova.Server.Defines import status_codes
 
 
 class Server(AsyncTcp):

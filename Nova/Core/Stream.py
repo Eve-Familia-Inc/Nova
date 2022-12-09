@@ -1,6 +1,6 @@
 import asyncio
 import ssl
-import nova.Util.Parser
+import Nova.Util.Parser
 
 
 class AsyncStream():
@@ -73,7 +73,7 @@ class AsyncManualSslStream(AsyncStream):
         exBuf = ex[2::3]
         for i in range(len(exTypes)):
             if(exTypes[i] == b"\x00\x00"):
-                return nova.Util.Parser.parse(
+                return Nova.Util.Parser.parse(
                     exBuf[i],
                     (2, 1, 2, "b-1")
                 )[-2].decode("utf-8")
@@ -86,7 +86,7 @@ class AsyncManualSslStream(AsyncStream):
         exBuf = ex[2::3]
         for i in range(len(exTypes)):
             if(exTypes[i] == b"\x00\x10"):
-                tmp = nova.Util.Parser.parse(
+                tmp = Nova.Util.Parser.parse(
                     exBuf[i][2:],
                     (1, "b-1")
                 )
@@ -94,7 +94,7 @@ class AsyncManualSslStream(AsyncStream):
                     tmp[1].decode("utf-8")
                 )
                 while(tmp[-1] != None):
-                    tmp = nova.Util.Parser.parse(
+                    tmp = Nova.Util.Parser.parse(
                         tmp[-1],
                         (1, "b-1")
                     )
@@ -110,7 +110,7 @@ class AsyncManualSslStream(AsyncStream):
             self.isTryingHandshake = False
             return None
         self.isTryingHandshake = True
-        R["Parsed"] = nova.Util.Parser.parse(
+        R["Parsed"] = Nova.Util.Parser.parse(
             self._client_hello_buf,
             (
                 1, 2, 2,
@@ -119,7 +119,7 @@ class AsyncManualSslStream(AsyncStream):
         )
         extensions = [R["Parsed"][-1]]
         while(extensions[-1] != None):
-            extensions = extensions[:-1] + nova.Util.Parser.parse(
+            extensions = extensions[:-1] + Nova.Util.Parser.parse(
                 extensions[-1],
                 (2, 2, "b-1")
             )

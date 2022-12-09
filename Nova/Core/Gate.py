@@ -1,7 +1,7 @@
 import asyncio
 import ssl
 import traceback
-from nova.Core.Stream import AsyncStream, AsyncManualSslStream
+from Nova.Core.Stream import AsyncStream, AsyncManualSslStream
 
 
 class BraveGate():
