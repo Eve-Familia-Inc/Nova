@@ -2,35 +2,19 @@ import asyncio
 import ssl
 import glob
 
-from Nova.Server.Http import Server
-from Nova.Server.Defines import status_codes, mime
-from Nova.Core.Gate import Gate, StableGate
+from nova.Server.Http import Server
+from nova.Server.Defines import status_codes, mime
+from nova.Core.Gate import Gate, StableGate
 
 
 class Service(Server):
     def __init__(self, host, port, root_path):
         super().__init__(host=host, port=port)
-        self.__print_msg__()
         self.RootPath = root_path
         self.StatusCodes = status_codes
         self.MIME = mime
         self.OnMemoryFiles = {}
         self.SetFilesOnMemory(root_path)
-
-    def __print_msg__(self):
-        print("""                                                      
-    b.             8     ,o888888o.  `8.`888b           ,8' .8.          
-    888o.          8  . 8888     `88. `8.`888b         ,8' .888.         
-    Y88888o.       8 ,8 8888       `8b `8.`888b       ,8' :88888.        
-    .`Y888888o.    8 88 8888        `8b `8.`888b     ,8' . `88888.       
-    8o. `Y888888o. 8 88 8888         88  `8.`888b   ,8' .8. `88888.      
-    8`Y8o. `Y88888o8 88 8888         88   `8.`888b ,8' .8`8. `88888.     
-    8   `Y8o. `Y8888 88 8888        ,8P    `8.`888b8' .8' `8. `88888.    
-    8      `Y8o. `Y8 `8 8888       ,8P      `8.`888' .8'   `8. `88888.   
-    8         `Y8o.`  ` 8888     ,88'        `8.`8' .888888888. `88888.  
-    8            `Yo     `8888888P'           `8.` .8'       `8. `88888. 
-
-                                                        © Eve.Familia, Inc. 2021""")
 
     def SetFilesOnMemory(self, path):
         path = (path + "/**").replace("//", "/")
