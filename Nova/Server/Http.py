@@ -1,7 +1,6 @@
 from nova.Core.ServerBase import AsyncTcp
 import hashlib
 import base64
-import brotli
 import json
 
 from nova.Server.Defines import status_codes
@@ -45,12 +44,6 @@ class Server(AsyncTcp):
             "Additional": [],
             "ReplyContent": b""
         })
-
-    async def ReplyCompressBrotli(self, connection, header):
-        header["Additional"].append(b"Content-Encoding: br")
-        tmp_compress = brotli.compress(header["ReplyContent"])
-        header["ReplyContent"] = tmp_compress
-        await self.Reply(connection, header)
 
     async def Reply(self, connection, header):
         _ReplyBuffer = self._Header % (
