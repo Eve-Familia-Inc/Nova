@@ -1,10 +1,10 @@
-from Nova.Core.ServerBase import AsyncTcp
+from nova.Core.ServerBase import AsyncTcp
 import hashlib
 import base64
 import brotli
 import json
 
-from Nova.Server.Defines import status_codes
+from nova.Server.Defines import status_codes
 
 
 class Server(AsyncTcp):
@@ -36,7 +36,7 @@ class Server(AsyncTcp):
     def NewHeader(self):
         return({
             "Status": 0,
-            "Server": b"Nova",
+            "Server": b"nova",
             "Accept-Ranges": b"bytes",
             "Content-Length": 0,
             "Connection": b"keep-alive",
