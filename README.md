@@ -1,3 +1,3 @@
-# Nova
+# nova
 
-[![](https://nova.eve.ninja/img/wallpaper.png)](https://Nova.eve.ninja)
+[![](https://nova.eve.ninja/img/wallpaper.png)](https://nova.eve.ninja)

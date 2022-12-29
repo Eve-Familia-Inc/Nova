@@ -1,6 +1,6 @@
 import asyncio
 
-from Nova.Core.Stream import AsyncStream
+from nova.core.stream import AsyncStream
 
 
 class AsyncTcp():

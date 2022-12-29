@@ -2,11 +2,10 @@ import setuptools
 import pathlib
 
 setuptools.setup(
-    name="nova",
+    name="Nova",
     version="0.0.0",
     author="Eve.Familia, Inc. | LobeliaTechnologies™",
     description="WebApplication Framework",
-    long_description=open('README.md', 'r', encoding='utf-8').read(),
     long_description_content_type="text/markdown",
     url="https://github.com/Eve-Familia-Inc/Nova",
     packages=[
