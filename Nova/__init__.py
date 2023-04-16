@@ -2,9 +2,9 @@ import asyncio
 import ssl
 import glob
 
-from nova.server.http import server
-from nova.server.http import status_codes, mime
-from nova.core.gate import gate, Stablegate
+from Nova.Server.http import server
+from Nova.Server.http import status_codes, mime
+from Nova.Core.gate import gate, Stablegate
 
 
 class Service(server):

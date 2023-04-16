@@ -1,4 +1,4 @@
-from nova.core.server import AsyncTcp
+from Nova.Core.server import AsyncTcp
 import hashlib
 import base64
 import json
@@ -75,7 +75,7 @@ class server(AsyncTcp):
     def NewHeader(self):
         return({
             "Status": 0,
-            "server": b"nova",
+            "server": b"Nova",
             "Accept-Ranges": b"bytes",
             "Content-Length": 0,
             "Connection": b"keep-alive",
